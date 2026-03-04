@@ -1,0 +1,27 @@
+# Database
+*.db
+phong_tro.db/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Environment
+.env
+venv/
+
+# Docker (not needed on cloud)
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
