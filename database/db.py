@@ -50,19 +50,28 @@ class DictCursor:
         self._cursor = cursor
         self._description = cursor.description if cursor.description else []
 
+    def _get_keys(self):
+        """Extract column names from description, handling both tuple and string formats."""
+        keys = []
+        for d in self._description:
+            if isinstance(d, (tuple, list)):
+                keys.append(d[0])
+            else:
+                keys.append(str(d))
+        return keys
+
     def fetchone(self):
         row = self._cursor.fetchone()
         if row is None:
             return None
         if self._description:
-            keys = [d[0] for d in self._description]
-            return DictRow(keys, row)
+            return DictRow(self._get_keys(), row)
         return row
 
     def fetchall(self):
         rows = self._cursor.fetchall()
         if self._description:
-            keys = [d[0] for d in self._description]
+            keys = self._get_keys()
             return [DictRow(keys, row) for row in rows]
         return rows
 
