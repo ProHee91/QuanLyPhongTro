@@ -67,8 +67,3 @@ def render_login():
                         st.error("Sai tên đăng nhập hoặc mật khẩu!")
 
         st.markdown("---")
-        st.markdown(
-            '<p style="text-align: center; color: #666; font-size: 12px;">'
-            'Tài khoản mặc định: <b>admin</b> / <b>admin123</b></p>',
-            unsafe_allow_html=True
-        )
