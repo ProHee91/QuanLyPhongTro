@@ -1,5 +1,6 @@
 import os
 import hashlib
+import sqlite3
 
 # Try libsql for Turso cloud, fall back to sqlite3 for local dev
 try:
@@ -7,7 +8,6 @@ try:
     HAS_LIBSQL = True
 except ImportError:
     HAS_LIBSQL = False
-    import sqlite3
 
 
 def _get_turso_url():
