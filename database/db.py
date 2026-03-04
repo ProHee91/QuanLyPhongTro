@@ -10,6 +10,67 @@ except ImportError:
     HAS_LIBSQL = False
 
 
+class DictRow(dict):
+    """A dict subclass that also supports index access like sqlite3.Row."""
+    def __init__(self, keys, values):
+        super().__init__(zip(keys, values))
+        self._values = values
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self._values[key]
+        return super().__getitem__(key)
+
+
+class DictConnection:
+    """Wraps a libsql connection to return dict-like rows from queries."""
+    def __init__(self, conn):
+        self._conn = conn
+
+    def execute(self, sql, params=None):
+        if params:
+            cursor = self._conn.execute(sql, params)
+        else:
+            cursor = self._conn.execute(sql)
+        return DictCursor(cursor)
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        self._conn.close()
+
+    def cursor(self):
+        return self
+
+
+class DictCursor:
+    """Wraps a libsql cursor to return DictRow objects."""
+    def __init__(self, cursor):
+        self._cursor = cursor
+        self._description = cursor.description if cursor.description else []
+
+    def fetchone(self):
+        row = self._cursor.fetchone()
+        if row is None:
+            return None
+        if self._description:
+            keys = [d[0] for d in self._description]
+            return DictRow(keys, row)
+        return row
+
+    def fetchall(self):
+        rows = self._cursor.fetchall()
+        if self._description:
+            keys = [d[0] for d in self._description]
+            return [DictRow(keys, row) for row in rows]
+        return rows
+
+    @property
+    def description(self):
+        return self._description
+
+
 def _get_turso_url():
     """Get Turso database URL from Streamlit secrets or env vars."""
     try:
@@ -34,7 +95,8 @@ def get_connection():
     token = _get_turso_token()
 
     if HAS_LIBSQL and url and token:
-        conn = libsql.connect(database=url, auth_token=token)
+        raw_conn = libsql.connect(database=url, auth_token=token)
+        return DictConnection(raw_conn)
     else:
         _base = os.environ.get(
             "APP_DATA_DIR",
@@ -44,7 +106,7 @@ def get_connection():
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+        return conn
 
 
 def hash_password(password):
