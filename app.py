@@ -214,6 +214,15 @@ st.markdown("""
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
 
+    /* Hide default Streamlit page navigation */
+    [data-testid="stSidebarNav"] {display: none !important;}
+    div[data-testid="stSidebarNav"] {display: none !important;}
+    nav[data-testid="stSidebarNav"] {display: none !important;}
+    ul[data-testid="stSidebarNavItems"] {display: none !important;}
+    section[data-testid="stSidebar"] > div > div:first-child > ul {display: none !important;}
+    .st-emotion-cache-eczf16 {display: none !important;}
+    .st-emotion-cache-j7qwjs {display: none !important;}
+
     /* ══════════════════════════════════════════════
        MOBILE & TABLET RESPONSIVE
        ══════════════════════════════════════════════ */
